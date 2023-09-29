@@ -4,6 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+require('dotenv').config();
+
+/**
+ * to create secret token in node cli
+ * require('crypto').randomBytes(64).toString('hex')
+ */
+
 const db = require('./models');
 
 var usersRouter = require('./routes/users');

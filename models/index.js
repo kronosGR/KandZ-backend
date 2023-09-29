@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const InitializeService = require('../services/InitializeService');
 const basename = path.basename(__filename);
 require('dotenv').config();
 
@@ -38,4 +39,6 @@ module.exports = db;
 
 async function init() {
   await db.sequelize.sync({ force: true });
+  const initializeService = new InitializeService(db);
+  initializeService.initiliaze();
 }
