@@ -38,7 +38,7 @@ init();
 module.exports = db;
 
 async function init() {
-  await db.sequelize.sync({ force: true });
+  await db.sequelize.sync({ force: false });
   const initializeService = new InitializeService(db);
   initializeService.initiliaze();
 }

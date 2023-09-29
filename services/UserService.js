@@ -4,7 +4,7 @@ class UserService {
   }
 
   async create(name, email, password) {
-    return this.User.create({
+    return await this.User.create({
       name: name,
       email: email,
       password: password,
@@ -13,6 +13,12 @@ class UserService {
       console.error(err.errors[0].type);
       if (err.errors[0].type == 'unique violation') return { error: 'duplicate' };
       else return { error: err };
+    });
+  }
+
+  async getByEmail(email) {
+    return await this.User.findOne({ where: { email: email } }).catch((err) => {
+      console.error(err);
     });
   }
 }

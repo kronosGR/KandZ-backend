@@ -4,8 +4,10 @@ class InitializeService {
   }
 
   async initiliaze() {
-    await this.sequelize.query("INSERT INTO ROLES (role) VALUES ('admin')");
-    await this.sequelize.query("INSERT INTO ROLES (role) VALUES ('member')");
+    try {
+      await this.sequelize.query("INSERT INTO ROLES (role) VALUES ('admin')");
+      await this.sequelize.query("INSERT INTO ROLES (role) VALUES ('member')");
+    } catch (err) {}
   }
 }
 

@@ -13,9 +13,27 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
+router.get('/get', async function (req, res, next) {
+  const { email } = req.body;
+  if (email == null) {
+    return res.status(400).json({ status: 400, message: 'All fields are required' });
+  }
+  const user = await userService.getByEmail(email);
+  if (!user) return res.status(404).json({ status: 404, message: 'User not found' });
+  console.log(user);
+  res.status(200).json({
+    success: true,
+    data: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      roleId: user.RoleId,
+    },
+  });
+});
+
 router.post('/signup', async (req, res, next) => {
   const { name, email, password } = req.body;
-  console.log(name, email, password);
   if (name == null || email == null || password == null)
     res.status(400).json({ status: 400, message: 'All fields are required' });
 
