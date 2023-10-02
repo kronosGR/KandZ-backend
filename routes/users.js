@@ -23,7 +23,6 @@ router.get('/get', async function (req, res, next) {
 
   const user = await userService.getByEmail(email);
   if (!user) return next(404, 'User not found');
-  console.log(user);
   res.status(200).json({
     success: true,
     data: {
@@ -35,10 +34,76 @@ router.get('/get', async function (req, res, next) {
   });
 });
 
+router.get('/login', async function (req, res, next) {
+  let { email, password } = req.body;
+  if (email == null || password == null)
+    return next(createHttpError(400, 'All fields are required'));
+
+  let existingUser;
+
+  try {
+    existingUser = await userService.getByEmail(email);
+    console.log(existingUser);
+  } catch {
+    return next(createHttpError(500, 'Something went wrong'));
+  }
+
+  const oldPassword = Uint8Array.from(atob(existingUser.password), (c) =>
+    c.charCodeAt(0)
+  );
+  const saltBuffer = Uint8Array.from(atob(existingUser.passwordsalt), (c) =>
+    c.charCodeAt(0)
+  );
+
+  crypto.pbkdf2(
+    password,
+    saltBuffer,
+    31000,
+    32,
+    'sha256',
+    function (err, hashedPassword) {
+      const oldPassword = Uint8Array.from(atob(existingUser.password), (c) =>
+        c.charCodeAt(0)
+      );
+      if (err) return next(500, 'Something went wrong');
+      if (!existingUser || !crypto.timingSafeEqual(oldPassword, hashedPassword)) {
+        return next(createHttpError(401, 'Incorrect username or password'));
+      }
+
+      let token;
+      try {
+        token = jwt.sign(
+          {
+            id: existingUser.id,
+            name: existingUser.name,
+            email: existingUser.email,
+            roleId: existingUser.RoleId,
+          },
+          process.env.TOKEN_SECRET,
+          { expiresIn: '1h' }
+        );
+      } catch (err) {
+        console.error(err);
+        return next(createHttpError(500, 'Something went wrong'));
+      }
+      return res.status(201).json({
+        success: true,
+        data: {
+          id: existingUser.id,
+          name: existingUser.name,
+          email: existingUser.email,
+          roleId: existingUser.RoleId,
+          token: token,
+        },
+      });
+    }
+  );
+});
+
 router.post('/signup', async (req, res, next) => {
   const { name, email, password } = req.body;
   if (name == null || email == null || password == null)
-    res.status(400).json({ status: 400, message: 'All fields are required' });
+    return next(400, 'All fields are required');
 
   const salt = crypto.randomBytes(16);
   crypto.pbkdf2(
