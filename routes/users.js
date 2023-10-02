@@ -3,6 +3,7 @@ var router = express.Router();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const crypto = require('crypto');
+const createHttpError = require('http-errors');
 
 const db = require('../models');
 const UserService = require('../services/UserService');
@@ -17,10 +18,11 @@ router.get('/', function (req, res, next) {
 router.get('/get', async function (req, res, next) {
   const { email } = req.body;
   if (email == null) {
-    return res.status(400).json({ status: 400, message: 'All fields are required' });
+    return next(400, 'All fields are required');
   }
+
   const user = await userService.getByEmail(email);
-  if (!user) return res.status(404).json({ status: 404, message: 'User not found' });
+  if (!user) return next(404, 'User not found');
   console.log(user);
   res.status(200).json({
     success: true,
@@ -55,7 +57,7 @@ router.post('/signup', async (req, res, next) => {
         salt.toString('base64')
       );
       if (user.error == 'duplicate')
-        return res.status(409).json({ status: 409, message: 'User already exists' });
+        return next(createHttpError(409, 'User already exists'));
 
       let token;
       try {
@@ -66,7 +68,7 @@ router.post('/signup', async (req, res, next) => {
         );
       } catch (err) {
         console.error(err);
-        return res.status(500).json({ status: 500, message: 'Something went wrong.' });
+        return next(createHttpError(500, 'Something went wrong'));
       }
       return res.status(201).json({
         success: true,
