@@ -3,11 +3,12 @@ class UserService {
     this.User = db.User;
   }
 
-  async create(name, email, password) {
+  async create(name, email, password, passwordsalt) {
     return await this.User.create({
       name: name,
       email: email,
       password: password,
+      passwordsalt: passwordsalt,
       RoleId: 2,
     }).catch((err) => {
       console.error(err.errors[0].type);

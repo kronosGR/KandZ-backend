@@ -6,6 +6,8 @@ module.exports = (sequelize) => {
     {
       name: { type: Sequelize.DataTypes.STRING, allowNull: false, unique: true },
       email: { type: Sequelize.DataTypes.STRING, allowNull: false, unique: true },
+      password: { type: Sequelize.DataTypes.STRING, allowNull: false },
+      passwordsalt: { type: Sequelize.DataTypes.STRING, allowNull: false },
       pic: Sequelize.DataTypes.STRING,
     },
     { timestamps: false }
