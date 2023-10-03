@@ -8,13 +8,14 @@ module.exports = (sequelize) => {
       email: { type: Sequelize.DataTypes.STRING, allowNull: false, unique: true },
       password: { type: Sequelize.DataTypes.STRING, allowNull: false },
       passwordsalt: { type: Sequelize.DataTypes.STRING, allowNull: false },
-      pic: Sequelize.DataTypes.STRING,
+      pic: { type: Sequelize.DataTypes.STRING, defaultValue: 'default.png' },
     },
     { timestamps: false }
   );
 
   User.associate = function (models) {
     User.belongsTo(models.Role);
+    User.hasMany(models.Post);
   };
   return User;
 };
