@@ -7,6 +7,7 @@ const createHttpError = require('http-errors');
 
 const db = require('../models');
 const UserService = require('../services/UserService');
+const { parseJWT } = require('../utils/utils');
 
 const userService = new UserService(db);
 
@@ -86,6 +87,7 @@ router.get('/login', async function (req, res, next) {
         console.error(err);
         return next(createHttpError(500, 'Something went wrong'));
       }
+      res.cookie('token', token, { maxAge: 3600 * 1000 });
       return res.status(201).json({
         success: true,
         data: {
@@ -135,6 +137,8 @@ router.post('/signup', async (req, res, next) => {
         console.error(err);
         return next(createHttpError(500, 'Something went wrong'));
       }
+
+      res.cookie('token', token, { maxAge: 3600 * 1000 });
       return res.status(201).json({
         success: true,
         data: {
@@ -147,6 +151,16 @@ router.post('/signup', async (req, res, next) => {
       });
     }
   );
+});
+
+router.delete('/:userId', async function (req, res, next) {
+  console.log(parseJWT(req.cookies.token));
+  return res.status(200).json({ message: 'User deleted' });
+});
+
+router.get('/logout', async function (req, res, next) {
+  res.cookie('token', '', { maxAge: 0 });
+  return res.status(200).json({ message: 'User logout' });
 });
 
 module.exports = router;
